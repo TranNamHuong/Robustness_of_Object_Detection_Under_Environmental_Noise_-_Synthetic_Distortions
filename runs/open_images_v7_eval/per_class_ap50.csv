@@ -1,0 +1,25 @@
+﻿model,open_images_class,project_class,coco_class_id,ground_truth_boxes,positive_images,negative_images,unannotated_images_ignored,AP50
+yolov8n,Person,person,0,49,23,20,57,0.4628507149173767
+yolov8n,Chair,chair,56,48,19,4,77,0.5295826682873869
+yolov8n,Couch,couch,57,14,14,5,81,0.27133053221288517
+yolov8n,Bed,bed,59,17,15,4,81,0.7903743315508021
+yolov8n,Remote control,remote,65,9,6,0,94,0.967452300785634
+yolov8n,Mobile phone,cell phone,67,16,14,1,85,0.7480820776586499
+yolov8n,Clock,clock,74,16,14,0,86,0.5818452380952381
+yolov8n,Teddy bear,teddy bear,77,24,13,0,87,0.9099093119132442
+yolov8s,Person,person,0,49,23,20,57,0.5079592241623998
+yolov8s,Chair,chair,56,48,19,4,77,0.5801836382539008
+yolov8s,Couch,couch,57,14,14,5,81,0.32670068027210886
+yolov8s,Bed,bed,59,17,15,4,81,0.7582071949079622
+yolov8s,Remote control,remote,65,9,6,0,94,0.8888888888888888
+yolov8s,Mobile phone,cell phone,67,16,14,1,85,0.5772544642857143
+yolov8s,Clock,clock,74,16,14,0,86,0.7020466254018884
+yolov8s,Teddy bear,teddy bear,77,24,13,0,87,0.8888773306371991
+SSDLite320-MobileNetV3-Large,Person,person,0,49,23,20,57,0.4505513978358354
+SSDLite320-MobileNetV3-Large,Chair,chair,56,48,19,4,77,0.47253867499708146
+SSDLite320-MobileNetV3-Large,Couch,couch,57,14,14,5,81,0.3772436638734534
+SSDLite320-MobileNetV3-Large,Bed,bed,59,17,15,4,81,0.6995347299253691
+SSDLite320-MobileNetV3-Large,Remote control,remote,65,9,6,0,94,0.8558201058201058
+SSDLite320-MobileNetV3-Large,Mobile phone,cell phone,67,16,14,1,85,0.8499037114845938
+SSDLite320-MobileNetV3-Large,Clock,clock,74,16,14,0,86,0.44086504407392063
+SSDLite320-MobileNetV3-Large,Teddy bear,teddy bear,77,24,13,0,87,0.8040792282183558

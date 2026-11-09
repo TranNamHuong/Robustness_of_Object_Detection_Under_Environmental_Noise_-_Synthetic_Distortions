@@ -1,0 +1,21 @@
+condition,label,model,stage,mAP50,mAP50_95,delta_vs_model_clean_pp
+clean,Clean,YOLOv8n,raw,0.518457,0.367131,0.000000
+clean,Clean,YOLOv8s,raw,0.611216,0.444296,0.000000
+clean,Clean,YOLOv8n,recovered,0.518457,0.367131,0.000000
+clean,Clean,YOLOv8s,recovered,0.611216,0.444296,0.000000
+gaussian_0.06,Gaussian 0.06,YOLOv8n,raw,0.438676,0.303655,-7.978127
+gaussian_0.06,Gaussian 0.06,YOLOv8s,raw,0.538956,0.383202,-7.226023
+gaussian_0.06,Gaussian 0.06,YOLOv8n,recovered,0.481749,0.336591,-3.670786
+gaussian_0.06,Gaussian 0.06,YOLOv8s,recovered,0.572437,0.408727,-3.877946
+salt_pepper_0.06,Salt-and-pepper 0.06,YOLOv8n,raw,0.245872,0.163597,-27.258482
+salt_pepper_0.06,Salt-and-pepper 0.06,YOLOv8s,raw,0.283983,0.192261,-32.723299
+salt_pepper_0.06,Salt-and-pepper 0.06,YOLOv8n,recovered,0.493636,0.347473,-2.482115
+salt_pepper_0.06,Salt-and-pepper 0.06,YOLOv8s,recovered,0.580263,0.418975,-3.095320
+fog_0.50,Fog 0.50,YOLOv8n,raw,0.471215,0.331952,-4.724187
+fog_0.50,Fog 0.50,YOLOv8s,raw,0.559201,0.404055,-5.201554
+fog_0.50,Fog 0.50,YOLOv8n,recovered,0.499843,0.352744,-1.861388
+fog_0.50,Fog 0.50,YOLOv8s,recovered,0.594805,0.430736,-1.641109
+low_light_0.25,Low-light 0.25,YOLOv8n,raw,0.459096,0.322450,-5.936067
+low_light_0.25,Low-light 0.25,YOLOv8s,raw,0.555565,0.398715,-5.565179
+low_light_0.25,Low-light 0.25,YOLOv8n,recovered,0.484788,0.342149,-3.366867
+low_light_0.25,Low-light 0.25,YOLOv8s,recovered,0.579888,0.419460,-3.132804

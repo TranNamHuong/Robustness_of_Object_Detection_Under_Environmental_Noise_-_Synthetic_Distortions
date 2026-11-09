@@ -1,0 +1,9 @@
+﻿model,open_images_class,project_class,coco_class_id,ground_truth_boxes,positive_images,negative_images,unannotated_images_ignored,AP50
+yolov8s,Person,person,0,341,111,50,139,0.36352568509299943
+yolov8s,Chair,chair,56,198,83,10,207,0.539361073188864
+yolov8s,Couch,couch,57,47,37,20,243,0.591403143220725
+yolov8s,Bed,bed,59,87,72,8,220,0.8796044365991443
+yolov8s,Remote control,remote,65,0,0,0,300,nan
+yolov8s,Mobile phone,cell phone,67,95,66,0,234,0.8109925033617444
+yolov8s,Clock,clock,74,8,8,1,291,0.9276315789473684
+yolov8s,Teddy bear,teddy bear,77,6,5,1,294,1.0

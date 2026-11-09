@@ -1,0 +1,72 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Frontend dependencies/build output
+web/node_modules/
+web/.pnpm-store/
+web/dist/
+web/tsconfig.tsbuildinfo
+
+# Local runtime and user-specific files
+.website_runtime/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# Large source datasets and model checkpoints are not stored in Git
+/datasets/
+/target_eval/
+*.pt
+*.pth
+*.onnx
+
+# Experiment runs contain generated images, caches, and model artifacts.
+# Keep the compact CSV metrics and only figures referenced by project reports.
+/runs/**/*.jpg
+/runs/**/*.jpeg
+/runs/**/*.png
+/runs/**/*.json
+/runs/**/*.cache
+/runs/**/*.pt
+/runs/**/*.pth
+/runs/**/*.txt
+/runs/**/*.yaml
+/runs/**/*.partial.csv
+/runs/target_model_comparison/
+/runs/target_image_robustness/
+/runs/target_confidence_thresholds/
+
+!runs/full_val2017_raw_seed42/map_vs_intensity.png
+!runs/full_val2017_raw_seed42/false_positives_vs_intensity.png
+!runs/full_val2017_comparison_seed42/map_raw_vs_recovered.png
+!runs/repeat_analysis_seed42_43_44/map_vs_intensity_mean_std.png
+!runs/image_subset_analysis/mAP50_by_image_subset.png
+!runs/size_stratified_analysis/size_stratified_recall.png
+!runs/size_stratified_seed_analysis/size_stratified_recall.png
+!runs/size_stratified_subsets/size_stratified_recall_by_subset.png
+!runs/classwise_subset_analysis/classwise_salt_pepper_recall_change.png
+!runs/classwise_all_conditions_subsets/classwise_recall_all_families.png
+!runs/repeat_analysis_seed42_43_44/false_positives_mean_std.png
+!runs/full_val2017_classwise/salt_pepper_0.06_class_errors.png
+!runs/detector_comparison_fullval/map50_detector_comparison.png
+!runs/detector_comparison_fullval/recovery_delta_detector_comparison.png
+!runs/ssdlite_fullval_seed42/classwise/salt_pepper_0.06_class_errors.png
+!runs/normalized_detector_comparison_fullval/classwise/salt_pepper_0.06_class_errors_both_detectors.png
+!runs/normalized_detector_comparison_fullval/classwise/salt_pepper_0.06_class_recall_both_detectors.png
+!runs/normalized_detector_comparison_fullval/map50_normalized_detector_comparison.png
+!runs/normalized_detector_comparison_fullval/recovery_delta_normalized_detector_comparison.png
+!runs/normalized_detector_comparison_fullval/raw_mAP_vs_intensity_both_detectors.png
+!runs/normalized_detector_comparison_fullval/recovery_curves_both_detectors.png
+!runs/normalized_detector_comparison_fullval/gaussian_denoiser_comparison.png
+!runs/normalized_detector_comparison_fullval/seed_repeat_map50.png
+!runs/qualitative_coco_examples/qualitative_recovery_examples.png
+!runs/yolo_model_size_comparison/yolov8n_vs_yolov8s_fullval.png
+!runs/yolov8_model_robustness_comparison/yolov8n_vs_yolov8s_robustness.png
+!runs/open_images_v7_eval/map50_model_comparison.png

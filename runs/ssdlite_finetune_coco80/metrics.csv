@@ -1,0 +1,2 @@
+﻿model,condition,images,mAP50,mAP50_95,tp_iou50,fp_iou50,fn_iou50,confusion_conf,confusion_iou,elapsed_sec
+SSDLite320-MobileNetV3-Large-COCO_V1,clean,5000,0.3112962562880292,0.18157664338459745,11065,10917,25270,0.25,0.5,192.86

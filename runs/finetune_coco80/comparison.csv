@@ -1,0 +1,7 @@
+"Model","Stage","Images","ImageSize","mAP50","mAP50_95","FP","FN"
+"YOLOv8n","Baseline","5000","640","0.51924","0.36825","",""
+"YOLOv8n","Fine-tuned COCO80 1K","5000","640","0.33653","0.21602","",""
+"YOLOv8s","Baseline","5000","640","0.6096457","0.4422667","",""
+"YOLOv8s","Fine-tuned COCO80 1K","5000","640","0.26757","0.16835","",""
+"SSDLite320-MobileNetV3-Large","Baseline","5000","320","0.3385599","0.2103832","6933","25297"
+"SSDLite320-MobileNetV3-Large","Fine-tuned COCO80 1K","5000","320","0.3112963","0.1815766","10917","25270"

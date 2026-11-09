@@ -1,0 +1,2 @@
+﻿condition,family,level,recovered,mAP50,mAP50_95,precision_ultralytics,recall_ultralytics,tp_iou50,fp_iou50,fn_iou50,precision_iou50,fp_conf_threshold,images
+clean,clean,0.0,False,0.6096457208357149,0.4422666895205068,0.6891700636160933,0.5589177429798025,21459,10774,14876,0.6657462848633389,0.25,5000

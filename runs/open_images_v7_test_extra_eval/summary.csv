@@ -1,0 +1,2 @@
+﻿model,images,ground_truth_boxes,classes_scored,imgsz,device,mAP50_open_images,TP_conf025_iou05,FP_conf025_iou05,FN_conf025_iou05,inference_seconds,note
+yolov8s,300,782,7,320,cuda:0,0.7303597743444065,415,171,367,,Open Images protocol subset; unannotated-class predictions ignored; group-of supported; metrics average classes with ground truth

@@ -1,0 +1,2 @@
+﻿condition,family,level,recovered,mAP50,mAP50_95,precision_ultralytics,recall_ultralytics,tp_iou50,fp_iou50,fn_iou50,precision_iou50,fp_conf_threshold,images
+gaussian_0.06_recovered,gaussian,0.06,True,0.44601133270798365,0.3071820092765021,0.5906820856493457,0.4142102026800186,15142,7396,21193,0.6718431094152099,0.25,5000
