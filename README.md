@@ -86,13 +86,34 @@ python -m pip install -r requirements-experiment.lock.txt
 
 Kiểm tra `torch.cuda.is_available()` trả `True`, sau đó truyền `--device 0` khi chạy. Lệnh và phiên bản cần được đối chiếu với [bảng cài đặt PyTorch chính thức](https://pytorch.org/get-started/previous-versions/).
 
-Lấy COCO val2017 cùng `instances_val2017.json`, rồi chuẩn bị tập con cố định:
+### Tải lại dataset cần cho benchmark và website
+
+Dataset và checkpoint lớn không được lưu trong GitHub. Trên Windows, sau khi clone repo và cài Python dependencies, chạy script sau để tải COCO val2017 và hai tập Open Images V7 đã ghim đúng danh sách ảnh 100/300:
 
 ```powershell
-python prepare_coco.py --images D:/datasets/coco/val2017 --annotations D:/datasets/coco/annotations/instances_val2017.json --out data/coco_subset --num-images 500 --seed 42
+Set-ExecutionPolicy -Scope Process Bypass
+.\download_project_datasets.ps1
 ```
 
-Khi tạo bộ mới, script lưu ảnh/nhãn YOLO, `data.yaml` và `manifest.json` chứa danh sách ảnh, seed và phân bố lớp. Trong workspace hiện tại, subset thực nghiệm là `datasets/coco/subset_500/data.yaml`; full val2017 là `datasets/coco/full_val2017/data.yaml`. Benchmark YOLOv8n và SSDLite, các điều kiện raw/recovered, confusion matrices, biểu đồ và báo cáo đã có sẵn; xem `RESULTS_REPORT.md` và `EXPERIMENT_LOG.md`.
+Script tải từ [trang COCO chính thức](https://cocodataset.org/#download) (ảnh val2017 và annotation train/val 2017) và [Open Images V7](https://storage.googleapis.com/openimages/web/download_v7.html), giải nén/chuẩn bị nhãn COCO, dựng lại annotation Open Images và tải đúng 400 ảnh validation. Hai danh sách ID nhỏ nằm trong `benchmark_data/` để mọi người tái tạo cùng subset. Không có train images, dữ liệu nhiễu sinh ra, hay toàn bộ Open Images được tải.
+
+COCO cần khoảng 1.3 GB tải về; sau giải nén và tạo YOLO labels nên chừa khoảng 4 GB dung lượng trống. Open Images tải thêm các bảng annotation nguồn và 400 ảnh được chọn (dung lượng thay đổi theo ảnh). Có thể bỏ qua một nguồn: `.\download_project_datasets.ps1 -SkipCoco` chỉ tải Open Images; `.\download_project_datasets.ps1 -SkipOpenImages` chỉ tải COCO. Nếu tải bị ngắt, chạy lại cùng lệnh để tiếp tục file zip dang dở. Kiểm tra manifest/license của từng ảnh trước khi chia sẻ lại ảnh Open Images.
+
+Script tạo các đường dẫn COCO được dùng trong báo cáo: `datasets/coco/full_val2017/data.yaml` và ba subset 500 ảnh (`subset_500`, `subset_500_image_set2`, `subset_500_image_set3`). Open Images được tạo tại `datasets/open_images_v7` (100 ảnh) và `datasets/open_images_v7_test_extra` (300 ảnh, thư viện website).
+
+Để dựng lại cache prediction cho thư viện website sau khi tải dataset và có checkpoint YOLOv8s:
+
+```powershell
+.\.venv\Scripts\python.exe evaluate_open_images_subset.py --data-root datasets/open_images_v7_test_extra --source-root datasets/open_images_v7/source --out runs/open_images_v7_test_extra_eval --device 0 --imgsz 320 --batch 16 --models yolov8s.pt
+```
+
+Để tải COCO thủ công, các link chính thức là [val2017.zip](https://images.cocodataset.org/zips/val2017.zip) và [annotations_trainval2017.zip](https://images.cocodataset.org/annotations/annotations_trainval2017.zip). Giải nén sao cho có `datasets/coco/val2017/` và `datasets/coco/annotations/instances_val2017.json`, rồi tạo subset như sau:
+
+```powershell
+python prepare_coco.py --images datasets/coco/val2017 --annotations datasets/coco/annotations/instances_val2017.json --out datasets/coco/subset_500 --num-images 500 --seed 42
+```
+
+Khi tạo bộ mới, script lưu ảnh/nhãn YOLO, `data.yaml` và `manifest.json` chứa danh sách ảnh, seed và phân bố lớp. Benchmark YOLOv8n và SSDLite, các điều kiện raw/recovered, confusion matrices, biểu đồ và báo cáo đã có sẵn; xem `RESULTS_REPORT.md` và `EXPERIMENT_LOG.md`. Script tải ở trên tái tạo các tập đánh giá, không tải COCO train2017. Muốn chạy fine-tuning cần tải riêng [train2017.zip](https://images.cocodataset.org/zips/train2017.zip); thao tác đó cần khoảng 18 GB tải về và không cần cho demo website hay benchmark validation.
 
 Ví dụ dataset YAML (`data.yaml`):
 
