@@ -107,6 +107,16 @@ COCO cần khoảng 1.3 GB tải về; sau giải nén và tạo YOLO labels nê
 
 Script tạo các đường dẫn COCO được dùng trong báo cáo: `datasets/coco/full_val2017/data.yaml` và ba subset 500 ảnh (`subset_500`, `subset_500_image_set2`, `subset_500_image_set3`). Open Images được tạo tại `datasets/open_images_v7` (100 ảnh) và `datasets/open_images_v7_test_extra` (300 ảnh, thư viện website).
 
+### Khôi phục model weights để bật nhận diện ảnh
+
+Checkpoint không nằm trong Git, nhưng không cần huấn luyện lại. Sau khi cài dependencies, chạy một lần:
+
+```powershell
+.\.venv\Scripts\python.exe download_model_weights.py
+```
+
+Script tải YOLOv8n/YOLOv8s COCO-pretrained vào thư mục dự án và SSD-MobileNet COCO-pretrained vào Torch cache đúng vị trí API đang kiểm tra. Việc này chỉ tải checkpoint (vài chục MB), không tải COCO, không fine-tune và không chạy benchmark. Nếu chỉ xem Comparison/Research analytics thì không cần model weights.
+
 Để dựng lại cache prediction cho thư viện website sau khi tải dataset và có checkpoint YOLOv8s:
 
 ```powershell

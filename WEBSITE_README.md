@@ -34,7 +34,13 @@ Set-Location ..
 
 Python 3.10+ and a supported Node.js LTS release are required. If `py -3.11` is unavailable, create the virtual environment with another supported Python version. To reproduce the recorded Windows CUDA experiment environment instead, install `requirements-experiment.lock.txt` and follow the PyTorch/CUDA instructions in the root README.
 
-The saved benchmark CSV files are included in Git, so Comparison and Research analytics work without downloading COCO or rerunning experiments. Dataset images and model weights are deliberately excluded. Without the Open Images image subset, the gallery is empty but the rest of the website still starts. Without YOLO checkpoints or cached SSD weights, the detection controls report that those models are unavailable. Follow the root README's dataset download steps only when you need the gallery or want to reproduce benchmarks; restore checkpoints separately before using image inference.
+The saved benchmark CSV files are included in Git, so Comparison and Research analytics work without downloading COCO or rerunning experiments. Dataset images and model weights are deliberately excluded. Without the Open Images image subset, the gallery is empty but the rest of the website still starts. To enable image inference, run this once after installing dependencies:
+
+```powershell
+.\.venv\Scripts\python.exe download_model_weights.py
+```
+
+It downloads the original COCO-pretrained YOLOv8n, YOLOv8s, and Torchvision SSD-MobileNet checkpoints to the locations expected by the API. This is not fine-tuning and does not run a benchmark. Follow the root README's dataset download steps only when you need the gallery or want to reproduce benchmark experiments.
 
 ## Pages
 
