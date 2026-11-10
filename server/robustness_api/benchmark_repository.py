@@ -17,6 +17,19 @@ EXPERIMENTS: list[dict[str, Any]] = [
         "kind": "multi_model_corruption",
     },
     {
+        "id": "coco_intensity_320",
+        "title": "COCO val2017 · intensity sweep & restoration · 320 px",
+        "dataset": "COCO val2017",
+        "dataset_kind": "COCO-80",
+        "protocol": "5,000 images per recorded condition; 320 px is identified by the detector IDs. Clean baseline is read from the paired normalized metrics.csv. The intensity CSVs do not record evaluator thresholds or implementation, so those settings are left unspecified. YOLOv8n and SSD-MobileNet only. Three raw severity levels are recorded per family; restored rows appear only for combinations present in the recovery source, which does not provide restored TP.",
+        "source": "runs/normalized_detector_comparison_fullval/raw_intensity_metrics.csv",
+        "secondary_sources": [
+            "runs/normalized_detector_comparison_fullval/metrics.csv",
+            "runs/normalized_detector_comparison_fullval/recovery_intensity_metrics.csv",
+        ],
+        "kind": "intensity_sweep",
+    },
+    {
         "id": "coco_yolo_family_640",
         "title": "COCO val2017 · YOLOv8n/s comparison · 640 px",
         "dataset": "COCO val2017",
@@ -113,12 +126,14 @@ def _int(row: dict[str, str], *names: str) -> int | None:
 def _condition(row: dict[str, str]) -> tuple[str, str, float | None]:
     raw = row.get("condition", "clean").strip()
     stage = "raw"
-    if raw.endswith("_recovered"):
-        raw = raw.removesuffix("_recovered")
-        stage = "restored"
+    for suffix in ("_recovered", "_bilateral", "_clahe", "_nlm", "_median"):
+        if raw.lower().endswith(suffix):
+            raw = raw[:-len(suffix)]
+            stage = "restored"
+            break
     if raw == "clean":
         stage = "clean"
-    family = row.get("family", "") or (raw.split("_", 1)[0] if raw != "clean" else "clean")
+    family = _family_slug(row.get("family", "") or (raw.split("_", 1)[0] if raw != "clean" else "clean"))
     level = _float(row, "level")
     if family == "clean":
         label = "Ảnh gốc / Clean"
@@ -131,8 +146,8 @@ def _condition(row: dict[str, str]) -> tuple[str, str, float | None]:
 
 def _normalise(row: dict[str, str], exp: dict[str, Any]) -> dict[str, Any]:
     condition, stage, level = _condition(row)
-    family = row.get("family") or (condition.split("_", 1)[0] if condition != "clean" else "clean")
-    recovery_method = row.get("recovery_method", "").strip()
+    family = _family_slug(row.get("family") or (condition.split("_", 1)[0] if condition != "clean" else "clean"))
+    recovery_method = row.get("recovery_method", "").strip() or _recovery_method_from_condition(row.get("condition", ""))
     if family == "clean":
         condition_label = "Ảnh gốc / Clean"
     else:
@@ -151,9 +166,7 @@ def _normalise(row: dict[str, str], exp: dict[str, Any]) -> dict[str, Any]:
     if recall is None and tp is not None and fn is not None and tp + fn:
         recall = tp / (tp + fn)
     f1 = 2 * precision * recall / (precision + recall) if precision is not None and recall is not None and precision + recall else None
-    model = row.get("model") or row.get("detector") or row.get("model_id") or "YOLOv8n"
-    if model in {"YOLOv8n-320", "YOLOv8s-320", "YOLOv8n-640", "YOLOv8s-640"}:
-        model = model.rsplit("-", 1)[0]
+    model = _canonical_model(row.get("model") or row.get("detector") or row.get("model_id") or "YOLOv8n")
     return {
         "experiment_id": exp["id"],
         "protocol_id": exp["id"],
@@ -188,9 +201,65 @@ def _normalise(row: dict[str, str], exp: dict[str, Any]) -> dict[str, Any]:
         "metric_implementation": row.get("ap_implementation") or row.get("ap_method") or row.get("note") or None,
         "seed": _int(row, "seed"),
         "derived_fields": [key for key, original in (("precision", "precision_ultralytics"), ("recall", "recall_ultralytics"), ("f1", "")) if not row.get(original)] if exp["kind"] == "external_labeled_subset" else [],
-        "source_file": exp["source"],
+        "source_file": row.get("_source_file") or exp["source"],
         "source_note": exp.get("protocol"),
     }
+
+
+def _family_slug(value: str) -> str:
+    aliases = {
+        "gaussian": "gaussian", "salt-and-pepper": "salt_pepper", "salt_pepper": "salt_pepper",
+        "fog": "fog", "low-light factor": "low_light", "low_light": "low_light", "clean": "clean",
+    }
+    return aliases.get(value.strip().lower().replace("†", ""), value.strip().lower())
+
+
+def _recovery_method_from_condition(condition: str) -> str:
+    for suffix, method in (("_bilateral", "bilateral"), ("_clahe", "CLAHE"), ("_nlm", "NLM"), ("_median", "median")):
+        if condition.lower().endswith(suffix):
+            return method
+    return ""
+
+
+def _canonical_model(value: str) -> str:
+    if value.startswith("YOLOv8") and value.rsplit("-", 1)[-1] in {"320", "640"}:
+        return value.rsplit("-", 1)[0]
+    if value.startswith("SSDLite"):
+        return "SSD-MobileNet"
+    return value
+
+
+def _intensity_rows(exp: dict[str, Any]) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    primary_path = ROOT / exp["source"]
+    if not primary_path.is_file():
+        return records
+    base_exp = next(item for item in EXPERIMENTS if item["id"] == "coco_normalized_320")
+    base_rows = _read_csv(ROOT / base_exp["source"])
+    for row in base_rows:
+        if row.get("condition") == "clean" and row.get("detector") != "YOLOv8s-320":
+            records.append(_normalise({**row, "_source_file": base_exp["source"]}, exp))
+    for row in _read_csv(primary_path):
+        normal = {**row, "family": _family_slug(row.get("family", "")), "input_size": "320", "_source_file": exp["source"]}
+        records.append(_normalise(normal, exp))
+    recovery_path = ROOT / exp["secondary_sources"][1]
+    if recovery_path.is_file():
+        for row in _read_csv(recovery_path):
+            family = _family_slug(row.get("family", ""))
+            records.append(_normalise({
+                "family": family,
+                "condition": row.get("recovered_condition", ""),
+                "level": row.get("level", ""),
+                "detector": row.get("detector", ""),
+                "images": "5000",
+                "input_size": "320",
+                "mAP50": row.get("recovered_mAP50", ""),
+                "mAP50_95": row.get("recovered_mAP50_95", ""),
+                "fp_iou50": row.get("recovered_fp", ""),
+                "fn_iou50": row.get("recovered_fn", ""),
+                "_source_file": exp["secondary_sources"][1],
+            }, exp))
+    return records
 
 
 def _subset_rows(row: dict[str, str], exp: dict[str, Any]) -> dict[str, Any]:
@@ -249,15 +318,18 @@ def get_experiments() -> list[dict[str, Any]]:
     for exp in EXPERIMENTS:
         path = ROOT / exp["source"]
         source_rows = _read_csv(path) if path.is_file() else []
-        measured_rows = (
-            [_subset_rows(row, exp) for row in source_rows]
-            if exp["kind"] == "three_subset_aggregate"
-            else [_normalise(row, exp) for row in source_rows]
-        )
+        if exp["kind"] == "intensity_sweep":
+            measured_rows = _intensity_rows(exp)
+        elif exp["kind"] == "three_subset_aggregate":
+            measured_rows = [_subset_rows(row, exp) for row in source_rows]
+        else:
+            measured_rows = [_normalise(row, exp) for row in source_rows]
+        source_paths = [path, *(ROOT / item for item in exp.get("secondary_sources", []))]
+        is_available = path.is_file() and all(source.is_file() for source in source_paths[1:])
         experiments.append({
             **exp,
-            "available": path.is_file(),
-            "source_modified": path.stat().st_mtime if path.is_file() else None,
+            "available": is_available,
+            "source_modified": max((source.stat().st_mtime for source in source_paths if source.is_file()), default=None),
             "record_count": len(measured_rows),
             "model_count": len({row["model"] for row in measured_rows}),
             "map50_count": sum(row["mAP50"] is not None for row in measured_rows),
@@ -300,6 +372,9 @@ def get_records(experiment_id: str | None = None) -> list[dict[str, Any]]:
         path = ROOT / exp["source"]
         if not path.is_file():
             continue
+        if exp["kind"] == "intensity_sweep":
+            records.extend(_intensity_rows(exp))
+            continue
         rows = _read_csv(path)
         if exp["kind"] == "three_subset_aggregate":
             records.extend(_subset_rows(row, exp) for row in rows)
@@ -309,6 +384,56 @@ def get_records(experiment_id: str | None = None) -> list[dict[str, Any]]:
         ref = next(item for item in get_experiments() if item["id"] == "user_reference_unverified")
         records.extend(_reference_records(ref))
     return records
+
+
+def get_classwise_records(*, model: str | None = None, condition: str | None = None,
+                          family: str | None = None, stage: str | None = None,
+                          recovery_method: str | None = None) -> list[dict[str, Any]]:
+    path = ROOT / "runs/normalized_detector_comparison_fullval/classwise/classwise_confusion_metrics.csv"
+    if not path.is_file():
+        return []
+    result = []
+    for row in _read_csv(path):
+        raw_condition, parsed_stage, _ = _condition(row)
+        canonical_model = _canonical_model(row.get("detector", ""))
+        if model and canonical_model != model:
+            continue
+        row_family = _family_slug(row.get("family") or (raw_condition.split("_", 1)[0] if raw_condition != "clean" else "clean"))
+        if condition and raw_condition != condition:
+            continue
+        if family and row_family != family:
+            continue
+        if stage and parsed_stage != stage:
+            continue
+        source_condition = row.get("condition", "")
+        source_method = _recovery_method_from_condition(source_condition)
+        if parsed_stage == "restored" and recovery_method:
+            if source_method and source_method.lower() != recovery_method.lower():
+                continue
+            if not source_method and not source_condition.endswith("_recovered"):
+                continue
+        result.append({
+            "model": canonical_model,
+            "condition": raw_condition,
+            "source_condition": source_condition,
+            "family": row_family,
+            "stage": parsed_stage,
+            "class_id": _int(row, "class_id"),
+            "class_name": row.get("class_name", ""),
+            "tp": _int(row, "tp"),
+            "fp": _int(row, "fp"),
+            "fn": _int(row, "fn"),
+            "support": _int(row, "support"),
+            "predicted": _int(row, "predicted"),
+            "precision": _float(row, "precision_at_conf025_iou05"),
+            "recall": _float(row, "recall_at_conf025_iou05"),
+            "source_file": "runs/normalized_detector_comparison_fullval/classwise/classwise_confusion_metrics.csv",
+        })
+    # A canonical condition can have multiple recovery methods in the source file.
+    # Do not silently combine those variants when the caller has no method to match.
+    if stage == "restored" and not recovery_method and len({row["source_condition"] for row in result}) > 1:
+        return []
+    return result
 
 
 def filter_records(records: list[dict[str, Any]], *, model: str | None = None,

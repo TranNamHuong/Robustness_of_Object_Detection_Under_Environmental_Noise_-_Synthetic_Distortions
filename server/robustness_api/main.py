@@ -22,7 +22,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from denoise import LEVEL_AWARE_AUTO  # noqa: E402
 from preprocessing import recover_image  # noqa: E402
 from robustness_eval import Condition, perturb  # noqa: E402
-from .benchmark_repository import EXPERIMENTS, filter_records, get_experiments, get_records  # noqa: E402
+from .benchmark_repository import EXPERIMENTS, filter_records, get_classwise_records, get_experiments, get_records  # noqa: E402
 from .inference import (  # noqa: E402
     MAX_IMAGE_BYTES,
     MODEL_INFO,
@@ -45,7 +45,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 OPEN_IMAGES_ROOT = PROJECT_ROOT / "datasets" / "open_images_v7_test_extra"
-app.mount("/data/open-images-300", StaticFiles(directory=OPEN_IMAGES_ROOT / "images" / "val"), name="open-images-gallery")
+OPEN_IMAGES_IMAGE_ROOT = OPEN_IMAGES_ROOT / "images" / "val"
+if OPEN_IMAGES_IMAGE_ROOT.is_dir():
+    app.mount("/data/open-images-300", StaticFiles(directory=OPEN_IMAGES_IMAGE_ROOT), name="open-images-gallery")
 INFERENCE_LOCK = threading.BoundedSemaphore(value=1)
 FAMILY_LEVELS = {
     "gaussian": (0.01, 0.03, 0.06),
@@ -288,6 +290,20 @@ def metrics(
         "record_count": len(records),
         "source_file": metadata["source"] if metadata else None,
         "reference_only": bool(metadata and metadata.get("kind") == "reference_only"),
+    }
+
+
+@app.get("/api/classwise")
+def classwise_metrics(model: str, condition: str, stage: str = "raw",
+                      recovery_method: str | None = None) -> dict[str, Any]:
+    """Return recorded per-class detection counts for the shared 320 px COCO evaluation."""
+    records = get_classwise_records(model=model, condition=condition, stage=stage,
+                                    recovery_method=recovery_method)
+    return {
+        "records": records,
+        "record_count": len(records),
+        "source_file": "runs/normalized_detector_comparison_fullval/classwise/classwise_confusion_metrics.csv",
+        "protocol": "COCO val2017; 5,000 images; confidence 0.25; matching IoU 0.50; per-class TP/FP/FN.",
     }
 
 

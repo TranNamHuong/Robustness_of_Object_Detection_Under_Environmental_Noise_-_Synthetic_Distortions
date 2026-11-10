@@ -30,6 +30,7 @@ export type MetricRecord = {
   family: string;
   severity: number | null;
   stage: string;
+  recovery_method?: string | null;
   mAP50: number | null;
   mAP50_95: number | null;
   precision: number | null;
@@ -77,6 +78,8 @@ export type GalleryItem = {
 export type GalleryResponse = { items: GalleryItem[]; page: number; page_size: number; total: number; classes: string[]; protocol: string };
 export type RecommendationCandidate = { model: string; value: number; metric: string; condition?: string; source_file?: string; protocol?: string; images?: number; clean_mAP50_95?: number; noisy_mAP50_95?: number; raw_mAP50_95?: number; restored_mAP50_95?: number };
 export type RecommendationResponse = { status: string; criterion?: string; winner?: RecommendationCandidate; candidates: RecommendationCandidate[]; experiment?: Experiment; reason?: string; rule?: string };
+export type ClasswiseRecord = { model: string; condition: string; family: string; stage: string; class_id: number | null; class_name: string; tp: number | null; fp: number | null; fn: number | null; support: number | null; predicted: number | null; precision: number | null; recall: number | null; source_file: string };
+export type ClasswiseResponse = { records: ClasswiseRecord[]; record_count: number; source_file: string; protocol: string };
 
 export type HealthResponse = {
   status: string;
@@ -124,6 +127,7 @@ export const api = {
   health: () => request<HealthResponse>('/api/health'),
   experiments: () => request<Experiment[]>('/api/experiments'),
   metrics: (experimentId: string) => request<MetricsResponse>(`/api/metrics?experiment_id=${encodeURIComponent(experimentId)}`),
+  classwise: (model: string, condition: string, stage: string, recoveryMethod?: string | null) => request<ClasswiseResponse>(`/api/classwise?model=${encodeURIComponent(model)}&condition=${encodeURIComponent(condition)}&stage=${encodeURIComponent(stage)}${recoveryMethod ? `&recovery_method=${encodeURIComponent(recoveryMethod)}` : ''}`),
   gallery: (page: number, className: string) => request<GalleryResponse>(`/api/gallery?page=${page}&page_size=12${className ? `&class_name=${encodeURIComponent(className)}` : ''}`),
   recommendations: (experimentId: string, criterion: string, condition: string, stage?: string) => request<RecommendationResponse>(`/api/recommendations?experiment_id=${encodeURIComponent(experimentId)}&criterion=${criterion}${condition ? `&condition=${encodeURIComponent(condition)}` : ''}${stage ? `&stage=${encodeURIComponent(stage)}` : ''}`),
   detect: (form: FormData) => request<DetectionResponse>('/api/detect', { method: 'POST', body: form }),

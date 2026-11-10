@@ -18,6 +18,12 @@ Kết quả full-val hiện có trong `RESULTS_REPORT.md`; đây là benchmark t
 
 Git tracks source code, documentation, compact experiment CSVs, and report figures. COCO/Open Images source images, generated full-resolution corruption datasets, model checkpoints (`.pt`), Python environments, and frontend dependency folders are intentionally excluded because they occupy many gigabytes or are redistributable assets. A fresh clone therefore needs the datasets and YOLO checkpoints restored locally before running inference or the image gallery; follow the setup instructions below and the dataset notes in `WEBSITE_README.md`.
 
+## Website lab
+
+The React/FastAPI research website can read the recorded comparison and robustness results directly from the compact CSV files tracked in this repository. The analysis pages do not require the COCO images to be downloaded and do not rerun the experiments. On a fresh Windows clone, follow [WEBSITE_README.md](WEBSITE_README.md) to create the Python environment, install the web dependencies, and start the site with `run_local.ps1`. The image gallery requires the Open Images subset; upload inference requires the model checkpoints. Dataset download and checkpoint setup are documented separately below.
+
+The generated project reports are in [`reports/`](reports/), with a Markdown summary at [FINAL_PROJECT_REPORT.md](FINAL_PROJECT_REPORT.md).
+
 ## Ứng dụng desktop MVP
 
 Ứng dụng `app.py` biến pipeline thành demo dùng được trên Windows. Có hai chế độ: mô phỏng nhiễu trên ảnh sạch, hoặc đưa vào một ảnh đã nhiễu sẵn để khử nhiễu. Người dùng chọn family/level, chạy recovery tự động theo policy benchmark hoặc chọn bộ lọc thủ công, rồi xem ba khung: baseline, ảnh nhiễu trước recovery có bounding boxes, và ảnh sau recovery có bounding boxes. Nút **Lưu kết quả** ghi ảnh baseline, ảnh phát hiện, ảnh đã xử lý, ảnh nhiễu thô và file JSON metadata, gồm số detections trước/sau recovery. Kết quả trên một ảnh là số object/confidence, không phải mAP.
